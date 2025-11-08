@@ -20,6 +20,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::FunctionDecl {
             writer: &mut writer,
             cflow: &cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
 
         let argc = emit_args_at_target(&[], &self.args, &[], &mut c_params)?;

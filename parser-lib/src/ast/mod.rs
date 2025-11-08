@@ -1289,6 +1289,7 @@ pub struct ExtensionDecl {
 pub struct ImportPath {
     pub loc: SourcePointer,
     pub entries: Vec<Identifier>,
+    pub name: String,
 }
 
 impl ImportPath {
@@ -1302,23 +1303,16 @@ impl ImportPath {
                     value: x.to_owned(),
                 })
                 .collect(),
+            name: dotted.to_string(),
         }
     }
 
     pub fn to_dotted_string(&self) -> String {
-        self.entries
-            .iter()
-            .map(|x| x.value.clone())
-            .collect::<Vec<_>>()
-            .join(".")
+        self.name.clone()
     }
 
     pub fn to_path_string(&self) -> String {
-        self.entries
-            .iter()
-            .map(|x| x.value.clone())
-            .collect::<Vec<_>>()
-            .join("/")
+        self.name.replace(".", "/")
     }
 }
 

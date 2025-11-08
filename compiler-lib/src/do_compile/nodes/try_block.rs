@@ -53,6 +53,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::TryBlock {
             writer: params.writer,
             cflow: params.cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
         catch_params.scope.emit_untyped_define(
             &self.id.value,

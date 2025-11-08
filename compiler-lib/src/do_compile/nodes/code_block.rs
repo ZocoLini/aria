@@ -9,6 +9,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::CodeBlock {
             scope: &c_scope,
             writer: params.writer,
             cflow: params.cflow,
+            compiled_modules: params.compiled_modules,
             options: params.options,
         };
 

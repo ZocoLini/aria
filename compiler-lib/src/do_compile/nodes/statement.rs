@@ -30,6 +30,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::Statement {
                     writer: params.writer,
                     cflow: params.cflow,
                     options: params.options,
+                    compiled_modules: params.compiled_modules,
                 };
                 f.do_compile(&mut f_params)
             }

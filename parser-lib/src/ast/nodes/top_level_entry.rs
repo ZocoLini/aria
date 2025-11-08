@@ -2,9 +2,9 @@
 use crate::{
     ast::{
         AssertStatement, AssignStatement, CodeBlock, EnumDecl, ExpressionStatement, ExtensionDecl,
-        ForStatement, FunctionDecl, GuardBlock, IfStatement, ImportFromStatement, ImportStatement,
+        ForStatement, FunctionDecl, GuardBlock, IfStatement, ImportFromStatement,
         MatchStatement, MixinDecl, StructDecl, TopLevelEntry, TryBlock, ValDeclStatement,
-        WhileStatement, WriteOpEqStatement,
+        WhileStatement, WriteOpEqStatement, ImportStatement,
         derive::Derive,
         prettyprint::{PrettyPrintable, printout_accumulator::PrintoutAccumulator},
     },

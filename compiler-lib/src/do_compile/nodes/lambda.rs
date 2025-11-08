@@ -24,6 +24,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::LambdaFunction {
             writer: params.writer,
             cflow: params.cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
 
         f_obj.do_compile(&mut f_body_params)?;

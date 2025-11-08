@@ -13,8 +13,6 @@ pub enum VmErrorReason {
     #[error("assertion failed: {0}")]
     AssertFailed(String),
 
-    #[error("'{0}' is a circular import reference")]
-    CircularImport(String),
 
     #[error("division by zero")]
     DivisionByZero,

@@ -33,6 +33,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::WhileStatement {
             writer: params.writer,
             cflow: &w_cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
 
         // the logic here is a bit tricky because of the else:

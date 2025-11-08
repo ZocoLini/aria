@@ -13,12 +13,18 @@ impl Derive for ImportPath {
         assert!(p.as_rule() == Rule::import_path);
         let loc = From::from(&p.as_span());
         let inner = p.into_inner();
-        let entries = inner
+        let entries:Vec<Identifier> = inner
             .map(|x| Identifier::from_parse_tree(x, source))
             .collect();
+        let name = entries
+            .iter()
+            .map(|x| x.value.clone())
+            .collect::<Vec<_>>()
+            .join(".");
         Self {
             loc: source.pointer(loc),
             entries,
+            name,
         }
     }
 }

@@ -24,6 +24,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::MethodDecl {
             writer: &mut writer,
             cflow: &cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
 
         let this_arg = From::from(&DeclarationId {

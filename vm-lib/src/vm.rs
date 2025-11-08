@@ -1796,56 +1796,49 @@ impl VirtualMachine {
                         }
                     };
 
-                    if self.import_stack.contains(&ipath) {
-                        return build_vm_error!(
-                            VmErrorReason::CircularImport(ipath),
-                            next,
-                            frame,
-                            op_idx
-                        );
-                    } else {
+                    if !self.import_stack.contains(&ipath) {
                         self.import_stack.push(ipath.clone());
+
+                        let c_module = match compile_from_source(&sb, &Default::default()) {
+                            Ok(cm) => cm,
+                            Err(ces) => {
+                                let err_msg = ces
+                                    .iter()
+                                    .map(|x| format!("error: {x}"))
+                                    .collect::<Vec<_>>()
+                                    .join("\n");
+                                assert!(ipath == self.import_stack.pop());
+                                return build_vm_error!(
+                                    VmErrorReason::ImportNotAvailable(
+                                        ipath,
+                                        format!("module failed to compile: {err_msg}")
+                                    ),
+                                    next,
+                                    frame,
+                                    op_idx
+                                );
+                            }
+                        };
+                        let mli = match self.load_module(&sb.name, c_module)? {
+                            RunloopExit::Ok(mli) => mli,
+                            RunloopExit::Exception(e) => {
+                                assert!(ipath == self.import_stack.pop());
+                                return Ok(OpcodeRunExit::Exception(e));
+                            }
+                        };
+
+                        Self::create_import_model_from_path(
+                            this_module,
+                            &ipath,
+                            RuntimeValue::Module(mli.module.clone()),
+                        )?;
+
+                        assert!(ipath == self.import_stack.pop());
+
+                        frame.stack.push(RuntimeValue::Module(mli.module.clone()));
+
+                        self.imported_modules.insert(ipath.clone(), mli);
                     }
-
-                    let c_module = match compile_from_source(&sb, &Default::default()) {
-                        Ok(cm) => cm,
-                        Err(ces) => {
-                            let err_msg = ces
-                                .iter()
-                                .map(|x| format!("error: {x}"))
-                                .collect::<Vec<_>>()
-                                .join("\n");
-                            assert!(ipath == self.import_stack.pop());
-                            return build_vm_error!(
-                                VmErrorReason::ImportNotAvailable(
-                                    ipath,
-                                    format!("module failed to compile: {err_msg}")
-                                ),
-                                next,
-                                frame,
-                                op_idx
-                            );
-                        }
-                    };
-                    let mli = match self.load_module(&sb.name, c_module)? {
-                        RunloopExit::Ok(mli) => mli,
-                        RunloopExit::Exception(e) => {
-                            assert!(ipath == self.import_stack.pop());
-                            return Ok(OpcodeRunExit::Exception(e));
-                        }
-                    };
-
-                    Self::create_import_model_from_path(
-                        this_module,
-                        &ipath,
-                        RuntimeValue::Module(mli.module.clone()),
-                    )?;
-
-                    assert!(ipath == self.import_stack.pop());
-
-                    frame.stack.push(RuntimeValue::Module(mli.module.clone()));
-
-                    self.imported_modules.insert(ipath.clone(), mli);
                 };
             }
         }

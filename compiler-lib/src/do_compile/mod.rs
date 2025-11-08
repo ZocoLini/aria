@@ -120,6 +120,7 @@ struct CompileParams<'a> {
     writer: &'a mut FunctionBuilder,
     cflow: &'a ControlFlowTargets,
     options: &'a CompilationOptions,
+    compiled_modules: &'a mut HashSet<String>
 }
 
 trait CompileNode<'a, T = (), E = CompilationError> {
@@ -916,12 +917,14 @@ pub(crate) fn compile_from_ast(
     let scope = CompilationScope::module();
     let mut mod_init_bytecode = FunctionBuilder::default();
     let cflow = ControlFlowTargets::default();
+    let mut compiled_modules = HashSet::new();
 
     let mut c_params = CompileParams {
         module: &mut dest,
         scope: &scope,
         writer: &mut mod_init_bytecode,
         cflow: &cflow,
+        compiled_modules: &mut compiled_modules,
         options,
     };
 

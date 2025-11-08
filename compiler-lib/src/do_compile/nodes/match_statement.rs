@@ -13,6 +13,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::MatchStatement {
             writer: params.writer,
             cflow: params.cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
 
         self.expr.do_compile(&mut match_param)?;
@@ -37,6 +38,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::MatchStatement {
                 writer: match_param.writer,
                 cflow: match_param.cflow,
                 options: match_param.options,
+                compiled_modules: match_param.compiled_modules,
             };
 
             let match_hit = rule_param.writer.insert_block_after(

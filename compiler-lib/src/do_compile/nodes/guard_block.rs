@@ -13,6 +13,7 @@ impl<'a> CompileNode<'a> for aria_parser::ast::GuardBlock {
             writer: params.writer,
             cflow: params.cflow,
             options: params.options,
+            compiled_modules: params.compiled_modules,
         };
 
         self.expr.do_compile(&mut c_params)?;

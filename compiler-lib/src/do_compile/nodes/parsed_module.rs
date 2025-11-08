@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 // SPDX-License-Identifier: Apache-2.0
 use aria_parser::ast::{ImportFromStatement, ImportPath, ParsedModule};
 use haxby_opcodes::runtime_value_ids::RUNTIME_VALUE_THIS_MODULE;
@@ -22,7 +24,17 @@ impl<'a> CompileNode<'a, (), Vec<CompilationError>> for ParsedModule {
         params: &'a mut CompileParams,
     ) -> CompilationResult<(), Vec<CompilationError>> {
         let mut errors = vec![];
-
+        
+        // Besides we have a params.compiled_modules set to track compiled modules, 
+        // we need this tmp set to allow compiling imports like the following:
+        // 
+        // import A from widget.module;
+        // import B from widget.module;
+        // 
+        // Otherwise, without this tmp set, after the first ImportFromStatement of
+        // widget.module, the second import would be skipped.
+        let mut new_compiled_modules = HashSet::new();
+        
         if !self
             .flags
             .flags
@@ -55,6 +67,7 @@ impl<'a> CompileNode<'a, (), Vec<CompilationError>> for ParsedModule {
                         writer: params.writer,
                         cflow: params.cflow,
                         options: params.options,
+                        compiled_modules: params.compiled_modules,
                     };
                     collate_error_if_any!(f.do_compile(&mut f_params), errors)
                 }
@@ -77,10 +90,16 @@ impl<'a> CompileNode<'a, (), Vec<CompilationError>> for ParsedModule {
                     collate_error_if_any!(e.do_compile(params), errors)
                 }
                 aria_parser::ast::TopLevelEntry::ImportStatement(i) => {
-                    collate_error_if_any!(i.do_compile(params), errors)
+                    if !params.compiled_modules.contains(&i.what.name) {
+                        collate_error_if_any!(i.do_compile(params), errors);
+                        new_compiled_modules.insert(i.what.name.clone());
+                    }
                 }
                 aria_parser::ast::TopLevelEntry::ImportFromStatement(i) => {
-                    collate_error_if_any!(i.do_compile(params), errors)
+                    if !params.compiled_modules.contains(&i.from.name) {
+                        collate_error_if_any!(i.do_compile(params), errors);
+                        new_compiled_modules.insert(i.from.name.clone());
+                    }
                 }
                 aria_parser::ast::TopLevelEntry::IfStatement(i) => {
                     collate_error_if_any!(i.do_compile(params), errors)
@@ -106,6 +125,10 @@ impl<'a> CompileNode<'a, (), Vec<CompilationError>> for ParsedModule {
             }
         }
 
+        for compiled_module in new_compiled_modules {
+            params.compiled_modules.insert(compiled_module);
+        }
+        
         for flag in &self.flags.flags {
             if let aria_parser::ast::ModuleFlag::UsesDylib(lib) = flag {
                 let cidx = match self.insert_const_or_fail(
