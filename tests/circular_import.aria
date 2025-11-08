@@ -1,0 +1,9 @@
+import Zero from circular.zero;
+import One from circular.one;
+import Two from circular.two;
+
+func main() {
+    assert Zero.name() == Two.wrapped_name();
+    assert One.name() == Zero.wrapped_name();
+    assert Two.name() == One.wrapped_name();
+}

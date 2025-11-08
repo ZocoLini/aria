@@ -63,19 +63,6 @@ assert x == 2;
 }
 
 #[test]
-fn test_circular_import_detected() {
-    let input = r##"
-import circular.zero;
-
-func main() {
-    assert true;
-}
-"##;
-
-    assert!(exec_code(input).is_ok());
-}
-
-#[test]
 fn test_module_val_typecheck_fails() {
     let input = r##"
 val x: Int = 1;

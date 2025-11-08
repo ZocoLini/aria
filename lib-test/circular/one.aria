@@ -1,2 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import circular.two;
+
+struct One {
+    type func name() {
+        return "One";
+    }
+    
+    type func wrapped_name() {
+        return circular.two.Two.name();
+    }
+}
